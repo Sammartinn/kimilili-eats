@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kimilili Eats — Food Delivery</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f5f7f6;color:#17231d}
+header{background:linear-gradient(135deg,#0f8a4b,#19a65f);color:#fff;padding:20px 16px;position:sticky;top:0;z-index:20;box-shadow:0 3px 12px #0002}
+.header-inner{max-width:1050px;margin:auto;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.logo{font-size:27px;font-weight:800}.tag{opacity:.9;font-size:14px}
+.header-actions{display:flex;gap:8px;flex-wrap:wrap}
+.header-actions button{background:#fff;color:#0f8a4b}
+main{max-width:1050px;margin:auto;padding:16px 16px 50px}
+.hero{background:linear-gradient(135deg,#e9f8ef,#fff);border-radius:20px;padding:24px;box-shadow:0 4px 18px #0001}
+.hero h1{margin:0 0 8px;font-size:28px}.hero p{margin:0 0 16px;color:#5c6b62}
+#search{width:100%;padding:14px 16px;border:1px solid #dce4df;border-radius:12px;font-size:16px}
+.section-head{display:flex;justify-content:space-between;align-items:center;margin:22px 0 12px}
+.section-head h2{margin:0}.count{color:#0f8a4b;font-weight:bold}
+.menu{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.card{background:#fff;border-radius:17px;overflow:hidden;box-shadow:0 3px 12px #0001}
+.food-pic{height:155px;display:flex;align-items:center;justify-content:center;font-size:75px;background:linear-gradient(135deg,#fff2d8,#eaf8f0)}
+.card-body{padding:15px}.card h3{margin:0 0 6px}.category{font-size:13px;color:#738078}.price{font-size:20px;font-weight:800;color:#0f8a4b;margin:10px 0 13px}
+button{border:0;border-radius:10px;padding:11px 15px;background:#0f8a4b;color:#fff;font-weight:700;font-size:15px;cursor:pointer}
+button:active{transform:scale(.97)}button.secondary{background:#eef6f0;color:#17683f}.add{width:100%}
+.cart,.panel{margin-top:22px;background:#fff;border-radius:18px;padding:18px;box-shadow:0 3px 14px #0001}
+.cart-title{display:flex;justify-content:space-between;align-items:center}.cart-title h2{margin:0}
+.cart-row{display:flex;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid #edf1ee}
+.item-name{font-weight:700}.sub{color:#68746d;font-size:14px;margin-top:4px}.qty{white-space:nowrap}.qty button{padding:6px 10px;margin-left:4px}
+.total{display:flex;justify-content:space-between;font-size:21px;font-weight:800;padding:16px 0}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label{display:block;font-weight:700;font-size:14px;margin:8px 0 4px}
+input,select,textarea{width:100%;padding:12px;border:1px solid #dce4df;border-radius:10px;font-size:16px;background:#fff}
+.full{grid-column:1/-1}
+.delivery-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+.delivery-option{border:1px solid #dce4df;border-radius:12px;padding:12px}
+.delivery-option input{width:auto}.delivery-option strong{display:block}
+.fee-box{margin-top:12px;padding:13px;border-radius:12px;background:#eef8f2}
+.order{width:100%;font-size:17px;margin-top:12px}
+.small{font-size:12px;color:#7b857f;margin-top:8px}
+.empty{text-align:center;color:#6b756f;padding:15px}
+.status{margin-top:12px;padding:12px;border-radius:10px;background:#f1f7f3;display:none}
+.account-box{display:none;margin-top:16px;padding:13px;background:#eef8f2;border-radius:12px}
+.modal{display:none;position:fixed;inset:0;background:#0008;z-index:60;align-items:center;justify-content:center;padding:18px}
+.modal-box{background:#fff;border-radius:18px;padding:20px;max-width:460px;width:100%;max-height:90vh;overflow:auto}
+.modal-head{display:flex;justify-content:space-between;align-items:center}.modal-head h2{margin:0}
+.close{background:#eee;color:#333;padding:7px 11px}
+.tabs{display:flex;gap:8px;margin:14px 0}.tabs button{flex:1}.tabs .active{background:#0f8a4b;color:#fff}.tabs button:not(.active){background:#eef6f0;color:#17683f}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.cookie{position:fixed;left:12px;right:12px;bottom:12px;background:#17231d;color:#fff;padding:15px;border-radius:15px;z-index:80;display:none;box-shadow:0 4px 18px #0004}
+.cookie button{margin-top:8px;margin-right:7px}.cookie .secondary{background:#fff;color:#17231d}
+.notice{padding:12px;border-radius:12px;background:#fff7df;border:1px solid #f1dfa4;color:#6d5719;margin-top:12px}
+@media(max-width:700px){.header-inner{align-items:flex-start;flex-direction:column}.form-grid{grid-template-columns:1fr}.delivery-options{grid-template-columns:1fr}}
+
+/* Smart customer assistant */
+.assistant-launch{position:fixed;right:18px;bottom:18px;z-index:50;border:0;border-radius:999px;padding:14px 17px;font-weight:800;box-shadow:0 8px 25px rgba(0,0,0,.18);cursor:pointer}
+.assistant-panel{position:fixed;right:18px;bottom:78px;width:min(360px,calc(100vw - 36px));height:470px;background:#fff;border-radius:18px;box-shadow:0 15px 45px rgba(0,0,0,.25);z-index:51;display:none;overflow:hidden;border:1px solid #ddd}
+.assistant-head{padding:14px 16px;font-weight:800;display:flex;justify-content:space-between;align-items:center}
+.assistant-messages{height:350px;overflow:auto;padding:12px;background:#f7f8f9}
+.bot-msg,.user-msg{max-width:86%;padding:10px 12px;border-radius:14px;margin:7px 0;line-height:1.4;font-size:14px;white-space:pre-wrap}
+.bot-msg{background:#fff;border:1px solid #e3e3e3}.user-msg{margin-left:auto;background:#e8f5ee}
+.assistant-input{display:flex;gap:7px;padding:10px;border-top:1px solid #ddd}.assistant-input input{flex:1;min-width:0}.assistant-input button{padding:10px 13px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div>
+      <div class="logo">🍟 Kimilili Eats</div>
+      <div class="tag">Fresh food & drinks around Kimilili</div>
+    </div>
+    <div class="header-actions">
+      <button class="secondary" onclick="openAccount()">👤 Account</button>
+      <button class="secondary" onclick="scrollToCart()">🛒 Cart</button>
+    </div>
+  </div>
+</header>
+
+<main>
+<section class="hero">
+  <h1>Order your favourite food 🍔🍟</h1>
+  <p>Choose your food, create an account, select your location and delivery option, then place your order.</p>
+  <input id="search" type="search" placeholder="🔎 Search chips, chicken, drinks...">
+</section>
+
+<div id="accountBox" class="account-box"></div>
+
+<div class="section-head"><h2>🍽️ Our Menu</h2><span class="count" id="menuCount"></span></div>
+<div id="menu" class="menu"><div class="empty">Loading menu...</div></div>
+
+<section class="cart" id="cartSection">
+  <div class="cart-title"><h2>🛒 Your Cart</h2><span id="cartCount" class="count">0 items</span></div>
+  <div id="cartItems" class="empty">Your cart is empty.</div>
+  <div class="total"><span>Food total</span><span>KSh <span id="foodTotal">0</span></span></div>
+
+  <h3>📍 Delivery & collection</h3>
+  <div class="delivery-options">
+    <label class="delivery-option">
+      <input type="radio" name="deliveryMethod" value="collection" checked onchange="updateDeliveryFee()">
+      <strong>🏪 Self Collection — FREE</strong>
+      <span class="small">Collect your order from Kimilili Eats.</span>
+    </label>
+    <label class="delivery-option">
+      <input type="radio" name="deliveryMethod" value="doorstep" onchange="updateDeliveryFee()">
+      <strong>🚚 Doorstep Delivery</strong>
+      <span class="small">Fee depends on the number of items.</span>
+    </label>
+  </div>
+
+  <div class="form-grid" style="margin-top:10px">
+    <div class="full">
+      <label for="landmark">📍 Delivery location</label>
+      <textarea id="landmark" rows="3" placeholder="Enter your exact location, estate, building, shop, school, stage or nearby landmark..."></textarea>
+      <div class="small">For accurate delivery, give a clear landmark or full address. GPS/map-pin support can be added later.</div>
+    </div>
+  </div>
+
+  <div class="fee-box">
+    <div><strong>Delivery fee:</strong> KSh <span id="deliveryFee">0</span></div>
+    <div><strong>Order total:</strong> KSh <span id="grandTotal">0</span></div>
+    <div class="small">Suggested rates: 1–2 items KSh 50 • 3–5 items KSh 70 • 6–10 items KSh 100 • 11+ items KSh 150.</div>
+  </div>
+
+  <button class="order" onclick="placeOrder()">🔐 Create account / Log in to place order</button>
+  <div id="status" class="status"></div>
+  <div class="small">Your account password is private. It is not stored in this website's cookies.</div>
+</section>
+
+
+</main>
+
+<div id="accountModal" class="modal">
+  <div class="modal-box">
+    <div class="modal-head"><h2>👤 Customer Account</h2><button class="close" onclick="closeAccount()">✕</button></div>
+    <div class="tabs">
+      <button id="loginTab" class="active" onclick="showTab('login')">Log in</button>
+      <button id="registerTab" onclick="showTab('register')">Create account</button>
+    </div>
+
+    <div id="loginPanel" class="tab-panel active">
+      <label>Email or phone number</label>
+      <input id="loginIdentifier" placeholder="Your email or phone number" autocomplete="username">
+      <label>Password</label>
+      <input id="loginPassword" type="password" placeholder="Your password">
+      <button style="width:100%;margin-top:12px" onclick="login()">Log in</button>
+    </div>
+
+    <div id="registerPanel" class="tab-panel">
+      <label>Full name</label>
+      <input id="regName" placeholder="Your full name" autocomplete="name">
+      <label>Email address <span style="color:#b42318">*</span></label>
+      <input id="regEmail" type="email" placeholder="you@example.com" autocomplete="email">
+      <label>Phone number</label>
+      <input id="regPhone" inputmode="tel" placeholder="Your phone number">
+      <label>📍 Delivery location</label>
+      <textarea id="regLocation" rows="3" placeholder="Enter your exact location, estate, building, shop, school, stage or nearby landmark"></textarea>
+      <label>Password</label>
+      <input id="regPassword" type="password" placeholder="Create a password (8+ characters)">
+      <label>Confirm password</label>
+      <input id="regConfirm" type="password" placeholder="Repeat your password">
+      <button style="width:100%;margin-top:12px" onclick="register()">Create account</button>
+      <div class="small">Your password should be private and should not be shared with anyone.</div>
+    </div>
+    <div id="accountStatus" class="status"></div>
+  </div>
+</div>
+
+<div id="cookieBanner" class="cookie">
+  <strong>🍪 Kimilili Eats uses cookies</strong>
+  <div class="small" style="color:#d7e4dc">We use essential cookies to remember your cart and your cookie preference. We do not put your password in cookies.</div>
+  <button onclick="acceptCookies()">Accept</button>
+  <button class="secondary" onclick="acceptCookies()">Continue</button>
+</div>
+
+
+<button class="assistant-launch" onclick="toggleAssistant()">🤖 Help</button>
+<div id="assistantPanel" class="assistant-panel">
+  <div class="assistant-head"><span>🤖 Kimilili Eats Assistant</span><button class="secondary" onclick="toggleAssistant()">✕</button></div>
+  <div id="assistantMessages" class="assistant-messages"></div>
+  <div class="assistant-input"><input id="assistantInput" placeholder="Ask about menu, cart or order..." onkeydown="if(event.key==='Enter')sendAssistant()"><button onclick="sendAssistant()">Send</button></div>
+</div>
+<script>
+const API="https://kimilili-eats-backend.onrender.com";
+let menu=[],cart={};
+const locations={
+  "Kibingei":["Kibingei","Chebukwabi"],
+  "Kimilili":["Kimilili Rural","Township"],
+  "Maeni":["Nasusi","Sikhendu"],
+  "Kamukuywa":["Makhonge","Nabikoto"]
+};
+
+function setCookie(name,value,days){
+  const d=new Date();d.setTime(d.getTime()+days*86400000);
+  document.cookie=name+"="+encodeURIComponent(value)+"; expires="+d.toUTCString()+"; path=/; SameSite=Lax";
+}
+function getCookie(name){
+  const prefix=name+"=";
+  return document.cookie.split("; ").find(x=>x.startsWith(prefix))?.slice(prefix.length) || "";
+}
+function acceptCookies(){setCookie("ke_cookie_consent","yes",365);document.getElementById("cookieBanner").style.display="none";saveCartCookie();}
+function saveCartCookie(){setCookie("ke_cart",JSON.stringify(cart),7)}
+function loadCartCookie(){try{cart=JSON.parse(decodeURIComponent(getCookie("ke_cart")||"{}"))||{}}catch(e){cart={}}}
+
+function safe(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+
+const samplePics={
+  "Chips 1/2":"🍟","Chips Full":"🍟","Chicken 1/4":"🍗","Smokie":"🌭","Sausage":"🌭","Kebab":"🍢","Sambusa":"🥟",
+  "Coca-Cola 200ml":"🥤","Coca-Cola 300ml":"🥤","Coca-Cola 500ml":"🥤","Coca-Cola 1 litre":"🥤","Coca-Cola 2 litres":"🥤",
+  "400ml Predator":"⚡🥤","400ml Power Play":"⚡🥤","Water 500ml":"💧","Water 1 litre":"💧"
+};
+
+async function loadMenu(){
+  try{
+    const r=await fetch(API+"/api/menu");
+    if(!r.ok) throw new Error();
+    menu=await r.json();
+    document.getElementById("menuCount").textContent=menu.length+" items";
+    renderMenu(menu);
+  }catch(e){
+    document.getElementById("menu").innerHTML='<div class="empty">Could not load menu. Please refresh.</div>';
+  }
+}
+function renderMenu(items){
+  const box=document.getElementById("menu");
+  if(!items.length){box.innerHTML='<div class="empty">No items found.</div>';return}
+  box.innerHTML=items.map(x=>`
+    <article class="card">
+      <div class="food-pic" aria-label="Sample picture of ${safe(x.name)}">${samplePics[x.name]||"🍽️"}</div>
+      <div class="card-body">
+        <h3>${safe(x.name)}</h3>
+        <div class="category">${safe(x.category)}</div>
+        <div class="price">KSh ${Number(x.price).toLocaleString()}</div>
+        <button class="add" onclick="addToCart(${x.id})">＋ Add to cart</button>
+      </div>
+    </article>`).join("");
+}
+function addToCart(id){cart[id]=(cart[id]||0)+1;saveCartCookie();renderCart()}
+function changeQty(id,n){cart[id]=(cart[id]||0)+n;if(cart[id]<=0)delete cart[id];saveCartCookie();renderCart()}
+function itemCount(){return Object.values(cart).reduce((a,b)=>a+b,0)}
+function foodTotal(){return Object.keys(cart).reduce((sum,id)=>{const x=menu.find(a=>a.id==id);return sum+(x?x.price*cart[id]:0)},0)}
+function deliveryFee(){
+  if(document.querySelector('input[name="deliveryMethod"]:checked')?.value!=="doorstep") return 0;
+  const n=itemCount();
+  if(n<=0)return 0;if(n<=2)return 50;if(n<=5)return 70;if(n<=10)return 100;return 150;
+}
+function updateDeliveryFee(){
+  const fee=deliveryFee(),total=foodTotal()+fee;
+  document.getElementById("deliveryFee").textContent=fee;
+  document.getElementById("grandTotal").textContent=total;
+}
+function renderCart(){
+  const box=document.getElementById("cartItems"),ids=Object.keys(cart);
+  let total=0,count=0;
+  if(!ids.length){box.innerHTML='<div class="empty">Your cart is empty.</div>'}
+  else{
+    box.innerHTML=ids.map(id=>{
+      const x=menu.find(a=>a.id==id),q=cart[id],sub=x.price*q;total+=sub;count+=q;
+      return `<div class="cart-row"><div><div class="item-name">${safe(x.name)}</div><div class="sub">KSh ${x.price} × ${q} = KSh ${sub}</div></div><div class="qty"><button onclick="changeQty(${id},-1)">−</button><button onclick="changeQty(${id},1)">+</button></div></div>`
+    }).join("");
+  }
+  document.getElementById("foodTotal").textContent=total;
+  document.getElementById("cartCount").textContent=count+" item"+(count===1?"":"s");
+  updateDeliveryFee();
+}
+function token(){return localStorage.getItem("ke_token")||""}
+function openAccount(){document.getElementById("accountModal").style.display="flex"}
+function closeAccount(){document.getElementById("accountModal").style.display="none"}
+function showTab(tab){
+  document.getElementById("loginPanel").classList.toggle("active",tab==="login");
+  document.getElementById("registerPanel").classList.toggle("active",tab==="register");
+  document.getElementById("loginTab").classList.toggle("active",tab==="login");
+  document.getElementById("registerTab").classList.toggle("active",tab==="register");
+}
+function accountStatus(msg){const s=document.getElementById("accountStatus");s.style.display="block";s.textContent=msg}
+async function register(){
+  const fullName=document.getElementById("regName").value.trim(),email=document.getElementById("regEmail").value.trim().toLowerCase(),phone=document.getElementById("regPhone").value.trim();
+  const location=document.getElementById("regLocation").value.trim(),password=document.getElementById("regPassword").value,confirmPassword=document.getElementById("regConfirm").value;
+  if(!fullName||!email||!phone||!location||!password||!confirmPassword)return accountStatus("Please complete all account fields, including your delivery location.");
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return accountStatus("Enter a valid email address.");
+  if(password.length<8)return accountStatus("Password must be at least 8 characters.");
+  if(password!==confirmPassword)return accountStatus("Passwords do not match.");
+  accountStatus("Creating account...");
+  try{
+    const r=await fetch(API+"/api/auth/register",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({fullName,email,phone,location,password})});
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok)throw new Error(d.error||d.message||"Registration failed");
+    if(d.token)localStorage.setItem("ke_token",d.token);
+    accountStatus("✅ Account created successfully. Order updates will be sent to your email.");
+    await loadMe(); closeAccount();
+  }catch(e){accountStatus("❌ "+e.message)}
+}
+
+async function login(){
+  const identifier=document.getElementById("loginIdentifier").value.trim(),password=document.getElementById("loginPassword").value;
+  if(!identifier||!password)return accountStatus("Enter your email/phone number and password.");
+  accountStatus("Logging in...");
+  try{
+    const r=await fetch(API+"/api/auth/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({identifier,password})});
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok)throw new Error(d.error||d.message||"Login failed");
+    if(!d.token)throw new Error("No login token was returned.");
+    localStorage.setItem("ke_token",d.token);
+    accountStatus("✅ Logged in.");
+    await loadMe(); closeAccount();
+  }catch(e){accountStatus("❌ "+e.message)}
+}
+
+async function loadMe(){
+  if(!token()){document.getElementById("accountBox").style.display="none";return null}
+  try{
+    const r=await fetch(API+"/api/auth/me",{headers:{Authorization:"Bearer "+token()}});
+    if(!r.ok){localStorage.removeItem("ke_token");return null}
+    const d=await r.json(),u=d.user||d;
+    document.getElementById("accountBox").style.display="block";
+    document.getElementById("accountBox").innerHTML=`<strong>👋 Welcome, ${safe(u.fullName||u.name||"customer")}!</strong><br><span class="small">📧 ${safe(u.email||"")} &nbsp; 📱 ${safe(u.phone||"")}<br>Your account details will be used when you place an order.</span> <button class="secondary" style="margin-top:8px" onclick="logout()">Log out</button>`;
+    if(u.fullName)document.getElementById("landmark").value=document.getElementById("landmark").value||"";
+    return u;
+  }catch(e){return null}
+}
+function logout(){localStorage.removeItem("ke_token");document.getElementById("accountBox").style.display="none";showStatus("You have been logged out.")}
+async function placeOrder(){
+  if(!Object.keys(cart).length)return showStatus("Please add food or drinks to your cart first.");
+  if(!token()){openAccount();showTab("login");accountStatus("🔐 Please create an account or log in before placing an order.");return}
+  const landmark=document.getElementById("landmark").value.trim();
+  if(!landmark)return showStatus("Please enter your delivery location.");
+  const method=document.querySelector('input[name="deliveryMethod"]:checked').value,fee=deliveryFee();
+  showStatus("⏳ Sending your order...");
+  const items=Object.keys(cart).map(id=>({menuItemId:Number(id),quantity:cart[id]}));
+  try{
+    const r=await fetch(API+"/api/orders",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+token()},body:JSON.stringify({
+      items,deliveryMethod:method,deliveryFee:fee,location:landmark
+    })});
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok)throw new Error(d.error||d.message||"Order failed");
+    const no=d.order?.id||d.id||"received";
+    cart={};saveCartCookie();renderCart();
+    showStatus("🎉 Order received successfully! Order #"+no+".");
+  }catch(e){showStatus("❌ Could not place order: "+e.message)}
+}
+function showStatus(msg){const s=document.getElementById("status");s.style.display="block";s.textContent=msg}
+function scrollToCart(){document.getElementById("cartSection").scrollIntoView({behavior:"smooth"})}
+
+function toggleAssistant(){
+  const p=document.getElementById("assistantPanel");
+  p.style.display=p.style.display==="flex"?"none":"flex";
+  p.style.flexDirection="column";
+  if(p.style.display==="flex" && !document.getElementById("assistantMessages").children.length){
+    botMessage("Hi! 👋 I'm the Kimilili Eats assistant. I can help with the menu, prices, your cart, account and order status. What do you need?");
+  }
+}
+function botMessage(t){const b=document.getElementById("assistantMessages");b.insertAdjacentHTML("beforeend",'<div class="bot-msg">'+safe(t).replace(/\n/g,"<br>")+'</div>');b.scrollTop=b.scrollHeight}
+function userMessage(t){const b=document.getElementById("assistantMessages");b.insertAdjacentHTML("beforeend",'<div class="user-msg">'+safe(t)+'</div>');b.scrollTop=b.scrollHeight}
+function sendAssistant(){
+  const input=document.getElementById("assistantInput"),q=input.value.trim(); if(!q)return; input.value=""; userMessage(q); assistantReply(q.toLowerCase());
+}
+async function assistantReply(q){
+  if(q.includes("hello")||q.includes("hi")||q.includes("jambo")){botMessage("Hello! 😊 Welcome to Kimilili Eats. I can help you order food or check an order.");return}
+  if(q.includes("menu")||q.includes("price")||q.includes("cost")){
+    const list=menu.map(x=>"• "+x.name+" — KSh "+x.price).join("\n"); botMessage("Here is our current menu:\n"+list); return;
+  }
+  if(q.includes("cart")||q.includes("basket")){
+    const ids=Object.keys(cart); if(!ids.length){botMessage("Your cart is empty. Add an item from the menu and I'll help you continue.");return;}
+    const lines=ids.map(id=>{const x=menu.find(a=>a.id==id);return "• "+x.name+" × "+cart[id]+" — KSh "+(x.price*cart[id]);}); botMessage("Your cart:\n"+lines.join("\n")+"\nFood total: KSh "+foodTotal()); return;
+  }
+  if(q.includes("order") && (q.includes("status")||q.includes("where")||q.includes("track"))){
+    if(!token()){botMessage("Please log in first. Then ask me again and I can check your recent order status.");return;}
+    try{const r=await fetch(API+"/api/orders/me",{headers:{Authorization:"Bearer "+token()}});const d=await r.json();if(!r.ok)throw new Error(d.error||"Could not check orders.");if(!d.length){botMessage("You don't have any orders yet.");return;}const lines=d.slice(0,5).map(o=>"Order #"+o.id+" — "+o.order_status+" — KSh "+o.total);botMessage("Your recent orders:\n"+lines.join("\n"));}catch(e){botMessage("I couldn't check your orders right now. Please try again.");}return;
+  }
+  if(q.includes("account")||q.includes("login")||q.includes("register")){botMessage("Tap 👤 Account at the top to create an account or log in. Your account is required before placing an order.");return}
+  if(q.includes("location")||q.includes("delivery")){botMessage("For delivery, enter a clear location such as an estate, building, shop, school, stage or nearby landmark. We removed the ward and sub-location fields to keep it simple.");return}
+  if(q.includes("payment")||q.includes("mpesa")){botMessage("M-Pesa payment integration is planned for Kimilili Eats. For now, the ordering system can receive the order while payment setup is being completed.");return}
+  if(q.includes("help")||q.includes("human")||q.includes("person")){botMessage("I can help with menu, cart, account, delivery location and order status. If you need a human, use the customer support contact provided by Kimilili Eats.");return}
+  botMessage("I can help with: menu and prices, your cart, account/login, delivery location, and order status. Try asking: ‘What is on the menu?’ or ‘Where is my order?’");
+}
+
+document.getElementById("search").addEventListener("input",e=>{
+  const q=e.target.value.toLowerCase();
+  renderMenu(menu.filter(x=>x.name.toLowerCase().includes(q)||x.category.toLowerCase().includes(q)));
+});
+loadCartCookie();loadMenu();loadMe();renderCart();
+if(!getCookie("ke_cookie_consent"))document.getElementById("cookieBanner").style.display="block";
+</script>
+</body>
+</html>
